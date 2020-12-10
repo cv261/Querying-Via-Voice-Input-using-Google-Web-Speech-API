@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>CS527 Fall 2020 - Group 7 - Project 1</title>
+    <meta name = "viewport" content = "width = device-width, initial-scale = 1">
+    <meta name = "description" content = "CS527 Project 1">
+
+    <!-- <link rel="stylesheet" href="css/styles.css?v=1.0"> -->
+  
+    <style>
+        .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+        }
+
+        .switch input { 
+        opacity: 0;
+        width: 0;
+        height: 0;
+        }
+
+        .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+        }
+
+        .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+        }
+
+        input:checked + .slider {
+        background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+        }
+
+        /* Rounded sliders */
+        .slider.round {
+        border-radius: 34px;
+        }
+
+        .slider.round:before {
+        border-radius: 50%;
+        }
+        body {
+            background-image: linear-gradient(to bottom, #dee8ff, white);
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        }
+
+        table.paleblue {
+            padding: 12px 20px;
+            font-weight: 200;
+        }
+
+        table.paleblue th, table.paleblue td {
+            border: 2px solid #D0E4F5;
+            padding: 12px 20px;
+            font-weight: bold;
+        }
+
+        table.paleBlueRows tr:nth-child(even) {
+            background: #D0E4F5;
+        }
+
+        table.paleBlueRows thead {
+            background: #599CD4;
+            border-bottom: 5px solid #FFFFFF;
+        }
+
+        table.paleBlueRows thead th {
+            font-size: 13px;
+            font-weight: bold;
+            color: #FFFFFF;
+            text-align: left;
+        }
+
+        .textstuff {
+            padding: 15px;
+        }
+
+        textarea {
+            font-size: x-large;
+            text-align: left;
+        }
+
+        .footer {
+            padding: 15px;
+        }
+    </style>
+
+</head>
+
+<script language = "javascript" type = "text/javascript">
+    record = true
+    if (!('webkitSpeechRecognition' in window)) {
+        upgrade();
+    } 
+    else {
+        var recognition = new webkitSpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = "en-US";
+
+        recognition.onstart = function() { console.log("started the word recognition") }
+        recognition.onresult = function(event) {
+                                    finalText = ""
+                                    for (var i = event.resultIndex; i < event.results.length; ++i) {
+                                        if (event.results[i].isFinal){
+                                            finalText += event.results[i][0].transcript;
+                                        }
+                                    }
+                                    document.getElementById("query_box").value += finalText.toLowerCase();
+                                    document.getElementById("query_box").value = document.getElementById("query_box").value.replace(". ", ".");
+                                    
+                                }
+        recognition.onerror = function(event) { alert("there is an error "+ event.error) }
+        recognition.onend = function() { console.log("end selected") }
+    }
+
+
+    function startButton(event) {
+        
+        if (record == true){
+            recognition.start();
+            document.getElementById("query_box").value = "";
+            mic.src = "../static/mic-animate.gif"
+            record = false;
+        }
+        else{
+            recognition.stop();
+            mic.src = "../static/mic.gif"
+            record = true;
+            // document.getElementById("execute_query").click();
+        }
+    }
+
+    window.onload = function () {
+        var loadTime = window.performance.timing.domContentLoadedEventEnd-window.performance.timing.navigationStart; 
+        console.log('Page load time is '+ loadTime);
+    }
+    document.getElementById("myText").innerHTML = loadTime;
+
+    function white_space(field){
+        return field.split(' ').join('');
+    }
+</script>
+
+    <body>
+        
+        <h1 style="text-align: center;">CS527 Fall 2020 - Group 7 - Project 1</h1>
+        <h3 style="text-align: center;">Team Members: Arwa EL-Hawwat, Lance Luo, Praneeth Chandra Thota, Chaitanya Vallabhaneni, Radhika Dube</h3>
+
+        <hr>
+
+        <button id="start_button" onclick="startButton(event)"><img id="mic" src="../static/mic.gif" alt="Start"></button> 
+        {% if message %}
+            <p style="color:rgb(184, 7, 7);"><b>**{{message}}</b></p>
+        {% endif %}
+        
+        <form action="/execute" method="post">
+
+            <div class="textstuff" style="float: right;"></div>
+
+                <div class="textstuff" style="float: right;">
+                    <h2>Free Speech</h2>
+
+                    <div id="free_speech">
+                        <label class="switch">
+                            <input name="free_speech_switch" id="free_speech_switch" type="checkbox" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    
+                    <br>    
+                    <h2>Please Choose A Database Type: </h2>
+                    
+                    <div id="database type">
+                        <input type="radio" name="dbType" id="rds", value = "rds" checked="checked">
+                        <label for="rds">MySQL</label>
+    
+                        <input type="radio" name="dbType" id="redshift", value = "redshift">
+                        <label for="redshift">Redshift</label>
+                    </div>
+
+                    <h2>Please Choose A Database: </h2>
+
+                    <div id="database">
+                        <input type="radio" name="dbName" id="instacart", value = "instacart" checked="checked">
+                        <label for="instacart">Instacart</label>
+
+                        <input type="radio" name="dbName" id="abc-retail", value = "abcretail">
+                        <label for="abc-retail">ABC-Retail</label>
+                    </div>
+
+                    <h2>Database ER Diagrams: </h2>
+
+                    <div class="textstuff">
+                        <a href="https://drive.google.com/file/d/1SXrWHAJhJ2nFziYHWi7AbG-N-EbXqB2j/view?usp=sharing" target="_blank">Instacart ERD</a>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <a href="https://drive.google.com/file/d/1xPeItUf1u8f9_35tVS9HMrUK7j6ewv3S/view?usp=sharing" target="_blank">ABC-Retail ERD</a>
+                    </div> 
+                    
+                </div>
+
+            </div>
+
+            <div class="textstuff">
+                <h2>
+                    Input SQL Query Here:
+                </h2>
+                
+                <td class="auto-style1">
+                    <textarea id="query_box" name="query" rows="2" cols="20" id="query" style="text-align: left;font-size:X-Large;height:250px;width: 63%;" onclick="white_space(this)"></textarea>
+                </td>
+            </div>
+
+            <!-- <input type="text" id="dbType" name="dbType"> -->
+
+            <div style="width=300px; float:left; padding: 15px;">
+                <input id="execute_query" type="submit" name="Button1" value="Execute Query" style="color:#7332a8;font-size:Large;height:50px;width:221px;">
+                <input type="reset" name="Button4" value="Reset" style="color:#7332a8;font-size:Large;height:50px;width:221px;">
+            </div>
+            
+        </form>
+
+        <div style="float:center; padding: 30px white-space: nowrap; justify-content: space-between; padding-top: 10px;">
+            <h3>Time elapsed: {{timeElapsed}} sec</h3>
+            <td class="auto-style4">
+                <!-- <textarea name="TextBox3" rows="1" cols="5" style="width: 300px;" readonly="true">{{timeElapsed}} sec</textarea> -->
+            </td>
+            <!-- <span id="myText"></span> -->
+        </div>
+        <div style="visibility: hidden;">    
+            This is some secret text!! Can you find it??
+        </div>
+
+        <div  class="textstuff" style="overflow-x:auto; float: inline-start;">
+            <h2>
+                Query Result:
+            </h2>
+
+            {% if tableHeaders and results %}
+
+                <table class="paleblue">
+                    <tr style="background: #599CD4; color: #FFFFFF;">
+                        {% for tableHeader in tableHeaders %}
+                            <td>{{ tableHeader }}</td>   
+                        {% endfor %}
+                    </tr>
+                    {% for row in results %}
+                        <tr>
+                        {% for col in row %}
+                            <td> {{ col }} </td>    
+                        {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </table>
+                
+            {% endif %}
+        </div>
+        <br><br><br>
+
+        <div class="textstuff">
+            <h2>Thanks for visiting!!</h2>
+        </div>
+
+    <br><br><br><br>
+
+    </body>
